@@ -32,8 +32,8 @@ app.get("/", (req, res, next) => {
   res.send("woople_back_server!");
 });
 
-app.use("posts", postsRouter);
-app.use("post", postRouter);
+app.use("/posts", postsRouter);
+app.use("/post", postRouter);
 
 app.listen(3065, () => {
   console.log("3065 서버 실행");
