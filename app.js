@@ -6,10 +6,15 @@ const hpp = require("hpp");
 const helmet = require("helmet");
 const app = express();
 
+require("dotenv").config();
+
 const postsRouter = require("./routes/posts");
 const postRouter = require("./routes/post");
 
-// db
+mongoose
+  .connect(process.env.MONGO_DB_URI)
+  .then(() => console.log("MongoDB connecting Success!"))
+  .catch((err) => console.error(err));
 
 app.use(hpp());
 app.use(helmet());
