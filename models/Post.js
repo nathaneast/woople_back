@@ -2,15 +2,11 @@ const mongoose = require("mongoose");
 
 const PostSchema = new mongoose.Schema(
   {
-    creator: {
-      type: String,
-      required: true,
-    },
     author: {
       type: String,
       required: true,
     },
-    title: {
+    url: {
       type: String,
       required: true,
     },
@@ -18,15 +14,19 @@ const PostSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    desc: {
+    postTitle: {
       type: String,
       required: true,
     },
-    metaImage: {
+    postDesc: {
       type: String,
       required: true,
     },
     metaTitle: {
+      type: String,
+      required: true,
+    },
+    metaImage: {
       type: String,
       required: true,
     },
@@ -44,6 +44,6 @@ const PostSchema = new mongoose.Schema(
   }
 );
 
-const Post = mongoose.model("sessionPost", PostSchema);
+const Post = mongoose.model("post", PostSchema);
 
 module.exports = Post;

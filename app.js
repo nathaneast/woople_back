@@ -35,6 +35,8 @@ app.get("/", (req, res, next) => {
 app.use("/posts", postsRouter);
 app.use("/post", postRouter);
 
+// TODO: 공통 에러처리
+
 app.listen(3065, () => {
   console.log("3065 서버 실행");
 });
