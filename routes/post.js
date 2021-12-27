@@ -3,6 +3,7 @@ const router = express.Router();
 const fetch = require("cross-fetch");
 
 const Post = require("../models/Post");
+const Category = require("../models/Category");
 
 const metascraper = require("metascraper")([
   require("metascraper-description")(),
@@ -10,29 +11,76 @@ const metascraper = require("metascraper")([
   require("metascraper-title")(),
 ]);
 
+// POST /
+// create
 router.post("/", async (req, res, next) => {
-  const {
-    author,
-    url,
-    category,
-    postTitle,
-    postDesc,
-    metaTitle,
-    metaImage,
-    metaDesc,
-  } = req.body;
+  try {
+    const {
+      author,
+      url,
+      category,
+      postTitle,
+      postDesc,
+      metaTitle,
+      metaImage,
+      metaDesc,
+    } = req.body;
 
-  const newPost = await Post.create({
-    author,
-    url,
-    category,
-    postTitle,
-    postDesc,
-    metaTitle,
-    metaImage,
-    metaDesc,
-  });
+    const newPost = await Post.create({
+      author,
+      url,
+      category,
+      postTitle,
+      postDesc,
+      metaTitle,
+      metaImage,
+      metaDesc,
+    });
+
+    console.log(newPost, "newPost");
+
+    const findedCategory = await Category.findOne({
+      name: category,
+    });
+
+    // const onUpdatePost = (targetCategoryId) => {
+    //   Post.findByIdAndUpdate(newPost._id, {
+    //     category: targetCategoryId,
+    //   });
+    // };
+
+    const onUpdateCategory = (targetCategoryId) => {
+      Category.findByIdAndUpdate(targetCategoryId, {
+        $push: {
+          posts: newPost._id,
+        },
+      });
+    };
+
+    if (findedCategory) {
+      // await onUpdatePost(findedCategory._id);
+      await onUpdateCategory(findedCategory._id);
+    } else {
+      const newCategory = await Category.create({
+        name: category,
+      });
+      // await onUpdatePost(newCategory._id);
+      await onUpdateCategory(newCategory._id);
+    }
+
+    return res.status(201).send("ok");
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
 });
+
+// GET /
+// detail
+
+// DELETE /
+
+// POST /like/:id
 
 router.get("/youtubeUrl", async (req, res, next) => {
   try {
@@ -44,17 +92,24 @@ router.get("/youtubeUrl", async (req, res, next) => {
       return metaData;
     };
 
-    const sendResult = await onFetchMetaData(targetUrl);
+    const metaDataAtUrl = await onFetchMetaData(targetUrl);
+    const { description, image, title } = metaDataAtUrl;
 
-    // TODO: 에러 응답 처리
+    const isCorrectMetaData = [description, image, title].every((item) =>
+      Boolean(item)
+    );
 
-    return res.status(200).send(sendResult);
+    if (isCorrectMetaData) {
+      return res.status(200).send(metaDataAtUrl);
+    } else {
+      return res
+        .status(403)
+        .send("메타 데이터 항목이 존재하지 않거나 잘못된 URL 입니다.");
+    }
   } catch (error) {
     console.error(error);
     next(error);
   }
 });
-
-// POST /like/:id
 
 module.exports = router;

@@ -35,7 +35,11 @@ app.get("/", (req, res, next) => {
 app.use("/posts", postsRouter);
 app.use("/post", postRouter);
 
-// TODO: 공통 에러처리
+// 공통 에러처리
+app.use(function (err, req, res, next) {
+  console.error(err);
+  res.status(500).send("서버에서 알 수 없는 에러가 발생 하였습니다");
+});
 
 app.listen(3065, () => {
   console.log("3065 서버 실행");
