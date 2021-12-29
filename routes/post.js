@@ -11,8 +11,6 @@ const metascraper = require("metascraper")([
   require("metascraper-title")(),
 ]);
 
-// POST /
-// create
 router.post("/", async (req, res, next) => {
   try {
     const {
@@ -71,13 +69,31 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// GET /
-// detail 
-// X
+router.patch("/like/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { like: postPrevLike } = await Post.findById(id);
+
+    await Post.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          like: postPrevLike + 1,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    return res.status(201).send("ok");
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 // DELETE /
-
-// POST /like/:id
 
 router.get("/youtubeUrl", async (req, res, next) => {
   try {
