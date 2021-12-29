@@ -8,27 +8,39 @@ const Category = require("../models/Category");
 // GET /
 // list
 router.get("/", async (req, res, next) => {
-  const { category } = req.query;
+  try {
+    const { category } = req.query;
 
-  if (category === "all") {
-    const allPosts = await Post.find().sort({ createdAt: -1 });
-    return res.status(200).send(allPosts);
-  } else {
-    const targetCategoryPosts = await Category.findOne({
-      name: category,
-    });
+    if (category === "all") {
+      const allPosts = await Post.find()
+        .populate("category", "name")
+        .sort({ createdAt: -1 });
 
-    console.log(targetCategoryPosts, "targetCategoryPosts");
+      return res.status(200).send(allPosts);
+    } else {
+      const targetCategoryPosts = await Category.findOne({
+        name: category,
+      }).populate({
+        path: "posts",
+        select:
+          "author url category postTitle postDesc metaTitle metaImage metaDesc like",
+        options: {
+          sort: { createdAt: -1 },
+        },
+        populate: {
+          path: "category",
+          select: "name",
+        },
+      });
 
-    return res
-      .status(200)
-      .send(targetCategoryPosts ? targetCategoryPosts.posts : []);
+      return res
+        .status(200)
+        .send(targetCategoryPosts ? targetCategoryPosts.posts : []);
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
   }
-
-  // db logic
-  // logic
-  // send
-  // err
 });
 
 module.exports = router;

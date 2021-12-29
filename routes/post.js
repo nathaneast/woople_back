@@ -29,7 +29,6 @@ router.post("/", async (req, res, next) => {
     const newPost = await Post.create({
       author,
       url,
-      category,
       postTitle,
       postDesc,
       metaTitle,
@@ -37,35 +36,32 @@ router.post("/", async (req, res, next) => {
       metaDesc,
     });
 
-    console.log(newPost, "newPost");
-
     const findedCategory = await Category.findOne({
       name: category,
     });
 
-    // const onUpdatePost = (targetCategoryId) => {
-    //   Post.findByIdAndUpdate(newPost._id, {
-    //     category: targetCategoryId,
-    //   });
-    // };
-
-    const onUpdateCategory = (targetCategoryId) => {
-      Category.findByIdAndUpdate(targetCategoryId, {
+    if (findedCategory) {
+      await Post.findByIdAndUpdate(newPost._id, {
+        category: findedCategory._id,
+      });
+      await Category.findByIdAndUpdate(findedCategory._id, {
         $push: {
           posts: newPost._id,
         },
       });
-    };
-
-    if (findedCategory) {
-      // await onUpdatePost(findedCategory._id);
-      await onUpdateCategory(findedCategory._id);
     } else {
       const newCategory = await Category.create({
         name: category,
       });
-      // await onUpdatePost(newCategory._id);
-      await onUpdateCategory(newCategory._id);
+
+      await Post.findByIdAndUpdate(newPost._id, {
+        category: newCategory._id,
+      });
+      await Category.findByIdAndUpdate(newCategory._id, {
+        $push: {
+          posts: newPost._id,
+        },
+      });
     }
 
     return res.status(201).send("ok");
@@ -76,7 +72,8 @@ router.post("/", async (req, res, next) => {
 });
 
 // GET /
-// detail
+// detail 
+// X
 
 // DELETE /
 
