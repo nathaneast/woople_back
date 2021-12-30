@@ -72,6 +72,7 @@ router.post("/", async (req, res, next) => {
 router.patch("/like/:id", async (req, res, next) => {
   try {
     const { id } = req.params;
+
     const { like: postPrevLike } = await Post.findById(id);
 
     await Post.findByIdAndUpdate(
@@ -93,7 +94,16 @@ router.patch("/like/:id", async (req, res, next) => {
   }
 });
 
-// DELETE /
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await Post.find({ _id: id }).deleteOne();
+    return res.status(201).send("ok");
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
 
 router.get("/youtubeUrl", async (req, res, next) => {
   try {

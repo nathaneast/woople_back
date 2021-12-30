@@ -5,8 +5,6 @@ const router = express.Router();
 const Post = require("../models/Post");
 const Category = require("../models/Category");
 
-// GET /
-// list
 router.get("/", async (req, res, next) => {
   try {
     const { category } = req.query;
